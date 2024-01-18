@@ -1,0 +1,33 @@
+import re
+
+def chatbot(user_input):
+
+    rules = [
+        {"pattern": r"hello|hi|hey", "response": "Hello! How can I help you?"},
+        {"pattern": r"how are you", "response": "I'm not human, but thanks for asking!"},
+        {"pattern": r"what is your name", "response": "I'm a chatbot."},
+        {"pattern": r"bye|goodbye", "response": "Goodbye! Have a great day."},
+        {"pattern": r"(\d+) \+ (\d+)", "response": lambda match: str(int(match.group(1)) + int(match.group(2)))},
+        {"pattern": r"(\d+) \* (\d+)", "response": lambda match: str(int(match.group(1)) * int(match.group(2)))},
+        {"pattern": r"(.+)", "response": "I'm sorry, I didn't understand that."},
+    ]
+
+    
+    for rule in rules:
+        match = re.match(rule["pattern"], user_input.lower())
+        if match:
+            if callable(rule["response"]):
+                return rule["response"](match)
+            else:
+                return rule["response"]
+
+    return "I'm sorry, I couldn't find a matching response."
+
+
+while True:
+    user_input = input("You: ")
+    if user_input.lower() == 'exit':
+        print("Chatbot: Goodbye!")
+        break
+    response = chatbot(user_input)
+    print("Chatbot:", response)
