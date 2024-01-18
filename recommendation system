@@ -1,0 +1,113 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+
+def get_movie_recommendations(user_genre):
+    movies = [
+        {'title': 'The Shawshank Redemption', 'genre': 'Drama'},
+        {'title': 'Inception', 'genre': 'Sci-Fi Action'},
+        {'title': 'The Dark Knight', 'genre': 'Action Crime'},
+        {'title': 'Forrest Gump', 'genre': 'Drama Romance'},
+        {'title': 'Pulp Fiction', 'genre': 'Crime'},
+        {'title': 'The Godfather', 'genre': 'Crime Drama'},
+        {'title': 'The Matrix', 'genre': 'Sci-Fi Action'},
+        {'title': 'Schindler\'s List', 'genre': 'Biography Drama'},
+        {'title': 'Titanic', 'genre': 'Romance Drama'},
+        {'title': 'The Silence of the Lambs', 'genre': 'Crime Thriller'},
+        {'title': 'The Avengers', 'genre': 'Action Adventure'},
+        {'title': 'Jurassic Park', 'genre': 'Adventure Sci-Fi'},
+        {'title': 'The Lion King', 'genre': 'Animation Adventure'},
+        {'title': 'Inglourious Basterds', 'genre': 'Adventure Drama'},
+        {'title': 'The Social Network', 'genre': 'Biography Drama'},
+        {'title': 'The Grand Budapest Hotel', 'genre': 'Adventure Comedy'},
+        {'title': 'La La Land', 'genre': 'Comedy Drama Music'},
+        {'title': 'The Shawshank Redemption', 'genre': 'Drama'},
+        {'title': 'The Departed', 'genre': 'Crime Drama Thriller'},
+        {'title': 'Gladiator', 'genre': 'Action Drama'},
+        {'title': 'The Revenant', 'genre': 'Action Adventure Drama'},
+        {'title': 'Eternal Sunshine of the Spotless Mind', 'genre': 'Drama Romance Sci-Fi'},
+        {'title': 'The Martian', 'genre': 'Adventure Drama Sci-Fi'},
+        {'title': 'Memento', 'genre': 'Mystery Thriller'},
+        {'title': 'The Princess Bride', 'genre': 'Adventure Family Fantasy'},
+        {'title': 'Blade Runner', 'genre': 'Action Sci-Fi Thriller'},
+        {'title': 'Casablanca', 'genre': 'Drama Romance War'},
+        {'title': 'The Shawshank Redemption', 'genre': 'Drama'},
+        {'title': 'Gone with the Wind', 'genre': 'Drama History Romance'},
+        {'title': 'The Wizard of Oz', 'genre': 'Adventure Family Fantasy'},
+    ]
+
+    user_preferences = {'genre': user_genre}
+
+    movie_titles = [movie['title'] for movie in movies]
+    movie_genres = [movie['genre'] for movie in movies]
+
+    # Combine title and genre information into a single string
+    movie_descriptions = [f"{title} {genre}" for title, genre in zip(movie_titles, movie_genres)]
+
+    # Initialize TfidfVectorizer
+    tfidf_vectorizer = TfidfVectorizer()
+
+    # Fit and transform the data
+    tfidf_matrix = tfidf_vectorizer.fit_transform(movie_descriptions)
+
+    # Transform user preferences
+    user_preferences_vector = tfidf_vectorizer.transform([f"{user_preferences['genre']}"])
+
+    # Calculate the cosine similarity between user preferences and movies
+    cosine_similarities = linear_kernel(user_preferences_vector, tfidf_matrix).flatten()
+
+    # Get movie recommendations based on similarity scores
+    recommendations = [
+        (title, similarity)
+        for title, similarity in zip(movie_titles, cosine_similarities)
+    ]
+
+    # Sort recommendations by similarity score
+    recommendations.sort(key=lambda x: x[1], reverse=True)
+
+    # Output based on the new data and preferences
+    print("---------------------------------------------------")
+    print("\nTop movie recommendations:")
+    top_recommendations = [title for title, similarity in recommendations[:5] if similarity > 0]
+    if top_recommendations:
+        for i, title in enumerate(top_recommendations):
+            print(f"{i + 1}. {title}")
+        print("---------------------------------------------------")
+    else:
+        print("No top recommendations based on user preferences.")
+        print("---------------------------------------------------")
+
+    # Display other movies
+    other_movies = [title for title, similarity in recommendations[5:] if similarity > 0]
+    if other_movies:
+        print("\nOther Movies:")
+        for title in other_movies:
+            print(f"- {title}")
+    print("---------------------------------------------------")
+    x=input("Do you want search for other recommendations? ")
+    if x=='yes' or x=='YES' or x=='Yes':
+        main()
+    else:
+        print("GOODBYE!! HAVE A GOOD DAY!! ")
+        print("---------------------------------------------------")
+        print("*")   
+print("\t-------RECOMMENDATONS-------")
+print("*")
+def main():
+    # Get user input for recommendation type
+    recommendation_type = input("What type of recommendations would you like? (Movies, Books, Products): ").lower()
+
+    # Get user input for genre/category preference
+    user_preference = input("Enter your preferred genre/category: ")
+
+    # Call the respective function based on user input
+    if recommendation_type == 'movies':
+        get_movie_recommendations(user_preference)
+    elif recommendation_type == 'books':
+        get_book_recommendations(user_preference)
+    elif recommendation_type == 'products':
+        get_product_recommendations(user_preference)
+    else:
+        print("Invalid recommendation type. Please choose Movies, Books, or Products.")
+        main()
+
+main()
